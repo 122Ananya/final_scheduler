@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduling Simulation</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Scheduling Simulation</h1>
+      <form method="POST" action="/">
+        <div class="form-group">
+          <label for="process">Processes (comma-separated):</label>
+          <input
+            type="text"
+            id="process"
+            name="process"
+            placeholder="e.g., P1, P2, P3"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="burst_time">Burst Times (comma-separated):</label>
+          <input
+            type="text"
+            id="burst_time"
+            name="burst_time"
+            placeholder="e.g., 5, 3, 8"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="arrival_time">Arrival Times (comma-separated):</label>
+          <input
+            type="text"
+            id="arrival_time"
+            name="arrival_time"
+            placeholder="e.g., 0, 1, 2"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="algorithm">Select Algorithm:</label>
+          <select id="algorithm" name="algorithm" required>
+            <option value="" hidden>Select an algorithm</option>
+            <option value="FCFS">First Come First Serve (FCFS)</option>
+            <option value="SJF">Shortest Job First (SJF)</option>
+          </select>
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </body>
+</html>
