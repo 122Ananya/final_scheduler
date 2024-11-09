@@ -50,6 +50,21 @@
             text-align: center;
             font-size: 16px;
         }
+        .back-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .back-button a {
+            text-decoration: none;
+            color: white;
+            background-color: #00796b;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .back-button a:hover {
+            background-color: #005a4f;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +103,11 @@
         {% else %}
             <p>No data available.</p>
         {% endif %}
+
+        <!-- Back to Main Button -->
+        <div class="back-button">
+            <a href="{{ url_for('index') }}">Back to Main</a>
+        </div>
     </div>
 </body>
 </html>

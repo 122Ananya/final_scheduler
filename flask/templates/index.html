@@ -1,62 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scheduling Simulation</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
     <div class="container">
-      <h1>Scheduling Simulation</h1>
-      <form method="POST" action="/">
-        <div class="form-group">
-          <label for="process">Processes (comma-separated):</label>
-          <input
-            type="text"
-            id="process"
-            name="process"
-            placeholder="e.g., P1, P2, P3"
-            required
-          />
-        </div>
+        <h1>Scheduling Simulation</h1>
+        <form method="POST" action="/">
+            <div class="form-group">
+                <label for="process">Processes (comma-separated):</label>
+                <input type="text" id="process" name="process" placeholder="e.g., P1, P2, P3" required />
+            </div>
 
-        <div class="form-group">
-          <label for="burst_time">Burst Times (comma-separated):</label>
-          <input
-            type="text"
-            id="burst_time"
-            name="burst_time"
-            placeholder="e.g., 5, 3, 8"
-            required
-          />
-        </div>
+            <div class="form-group">
+                <label for="burst_time">Burst Times (comma-separated):</label>
+                <input type="text" id="burst_time" name="burst_time" placeholder="e.g., 5, 3, 8" required />
+            </div>
 
-        <div class="form-group">
-          <label for="arrival_time">Arrival Times (comma-separated):</label>
-          <input
-            type="text"
-            id="arrival_time"
-            name="arrival_time"
-            placeholder="e.g., 0, 1, 2"
-            required
-          />
-        </div>
+            <div class="form-group">
+                <label for="arrival_time">Arrival Times (comma-separated):</label>
+                <input type="text" id="arrival_time" name="arrival_time" placeholder="e.g., 0, 1, 2" required />
+            </div>
 
-        <div class="form-group">
-          <label for="algorithm">Select Algorithm:</label>
-          <select id="algorithm" name="algorithm" required>
-            <option value="" hidden>Select an algorithm</option>
-            <option value="FCFS">First Come First Serve (FCFS)</option>
-            <option value="SJF">Shortest Job First (SJF)</option>
-          </select>
-        </div>
+            <div class="form-group">
+                <label for="algorithm">Select Algorithm:</label>
+                <select id="algorithm" name="algorithm" required onchange="toggleQuantumField()">
+                    <option value="" hidden>Select an algorithm</option>
+                    <option value="FCFS">First Come First Serve (FCFS)</option>
+                    <option value="SJF">Shortest Job First (SJF)</option>
+                    <option value="Round Robin">Round Robin (rr)</option>
+                </select>
+            </div>
 
-        <button type="submit">Submit</button>
-      </form>
+            <!-- Time Quantum Field (hidden by default) -->
+            <div class="form-group" id="timeQuantumField" style="display: none;">
+                <label for="time_quantum">Time Quantum:</label>
+                <input type="number" id="time_quantum" name="time_quantum" placeholder="Enter time quantum (e.g., 2)" min="1" />
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
     </div>
-  </body>
+
+    <script>
+        // Function to show/hide the time quantum field based on selected algorithm
+        function toggleQuantumField() {
+            var algorithm = document.getElementById("algorithm").value;
+            var timeQuantumField = document.getElementById("timeQuantumField");
+            if (algorithm === "Round Robin") {
+                timeQuantumField.style.display = "block";
+            } else {
+                timeQuantumField.style.display = "none";
+            }
+        }
+    </script>
+</body>
 </html>
