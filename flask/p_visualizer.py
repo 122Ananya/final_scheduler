@@ -9,7 +9,7 @@ with open('process_data.json', 'r') as f:
 processes = data['processes']
 burst_times = data['burst_times']
 arrival_times = data['arrival_times']
-priorities = data['priorities']  # We'll need to add this to the input form
+priorities = data['priorities']  # Higher number means higher priority
 
 pygame.init()
 
@@ -33,8 +33,8 @@ font = pygame.font.Font(None, 28)
 def get_highest_priority_process(queue):
     if not queue:
         return None
-    # Lower number means higher priority
-    highest_priority_process = min(queue, key=lambda x: priorities[processes.index(x)])
+    # Higher number means higher priority
+    highest_priority_process = max(queue, key=lambda x: priorities[processes.index(x)])
     return highest_priority_process
 
 def draw(processing, queue, time_elapsed, process_times):
@@ -128,7 +128,7 @@ while running:
 
     # Process handling
     if processing is None and queue:
-        # Get process with highest priority (lowest number)
+        # Get process with highest priority (highest number)
         processing = get_highest_priority_process(queue)
         queue.remove(processing)
         process_index = processes.index(processing)
