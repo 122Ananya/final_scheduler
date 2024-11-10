@@ -22,6 +22,17 @@ def index():
                 flash("Error: Time quantum must be a positive integer.")
                 return redirect(url_for('index'))
 
+        # Check for priorities if Priority algorithm is selected
+        priorities = None
+        if algorithm == 'Priority':
+            if 'priority' not in request.form or not request.form['priority']:
+                flash("Error: Priorities are required for Priority scheduling.")
+                return redirect(url_for('index'))
+            priorities = list(map(int, request.form['priority'].split(',')))
+            if len(priorities) != len(processes):
+                flash("Error: Number of priorities must match number of processes.")
+                return redirect(url_for('index'))
+
         # Check if input lists match in length
         if len(processes) != len(burst_times) or len(processes) != len(arrival_times):
             flash("Error: The number of processes, burst times, and arrival times must match.")
@@ -35,7 +46,9 @@ def index():
             'algorithm': algorithm
         }
         if time_quantum:
-            data['time_quantum'] = time_quantum  # Add time quantum for Round Robin
+            data['time_quantum'] = time_quantum
+        if priorities:
+            data['priorities'] = priorities
 
         # Save input data to JSON file
         with open('process_data.json', 'w') as f:
@@ -49,6 +62,8 @@ def index():
                 subprocess.run(['python', 'sjf_visualizer.py'], check=True)
             elif algorithm == 'Round Robin':
                 subprocess.run(['python', 'rr_visualizer.py'], check=True)
+            elif algorithm == 'Priority':
+                subprocess.run(['python', 'p_visualizer.py'], check=True)
 
             # Load output data
             with open('output_data.json', 'r') as f:
