@@ -45,8 +45,8 @@ def index():
                 subprocess.run(['python', 'fcfs_visualizer.py'], check=True)
             elif algorithm == 'SJF':
                 subprocess.run(['python', 'sjf_visualizer.py'], check=True)
-            elif algorithm == 'RR':
-                subprocess.run(['python', 'rr_visualizer.py'], check=True)
+            # elif algorithm == 'RR':
+            #     subprocess.run(['python', 'rr_visualizer.py'], check=True)
             elif algorithm == 'PS':
                 subprocess.run(['python', 'p_visualizer.py'], check=True)
             else:
@@ -90,4 +90,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

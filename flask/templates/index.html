@@ -58,11 +58,11 @@
             <option value="FCFS">First Come First Serve (FCFS)</option>
             <option value="PS">Priority Scheduler</option>
             <option value="SJF">Shortest Job First (SJF)</option>
-            <option value="RR">Round Robin (RR)</option>
+            <!-- <option value="RR">Round Robin (RR)</option> -->
           </select>
         </div>
 
-        <div
+        <!-- <div
           class="form-group"
           id="timeQuantumField"
           style="display: none; flex-direction: column"
@@ -82,7 +82,7 @@
               max-width: 300px;
             "
           />
-        </div>
+        </div> -->
 
         <div
           class="form-group"
@@ -105,14 +105,14 @@
     <script>
       function toggleQuantumField() {
         var algorithm = document.getElementById("algorithm").value;
-        var timeQuantumField = document.getElementById("timeQuantumField");
+        //var timeQuantumField = document.getElementById("timeQuantumField");
         var timePriorityField = document.getElementById("timePriorityField");
 
-        if (algorithm === "RR") {
+        /*if (algorithm === "RR") {
           timeQuantumField.style.display = "flex";
         } else {
           timeQuantumField.style.display = "none";
-        }
+        }*/
 
         if (algorithm === "PS") {
           timePriorityField.style.display = "flex";
