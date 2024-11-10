@@ -14,47 +14,47 @@ def index():
         arrival_times = list(map(int, request.form['arrival_time'].split(',')))
         algorithm = request.form['algorithm']
 
-        # Check for time quantum if Round Robin is selected
-        time_quantum = None
-        if algorithm == 'Round Robin':
-            time_quantum = int(request.form['time_quantum'])
-            if time_quantum <= 0:
-                flash("Error: Time quantum must be a positive integer.")
-                return redirect(url_for('index'))
-
-        # Check if input lists match in length
         if len(processes) != len(burst_times) or len(processes) != len(arrival_times):
             flash("Error: The number of processes, burst times, and arrival times must match.")
             return redirect(url_for('index'))
 
-        # Prepare data for JSON output
         data = {
             'processes': processes,
             'burst_times': burst_times,
             'arrival_times': arrival_times,
             'algorithm': algorithm
         }
-        if time_quantum:
-            data['time_quantum'] = time_quantum  # Add time quantum for Round Robin
 
-        # Save input data to JSON file
+        # Include priorities only if Priority Scheduler is selected
+        if algorithm == 'PS':
+            if 'priority' in request.form:
+                priorities = list(map(int, request.form['priority'].split(',')))
+                if len(priorities) != len(processes):
+                    flash("Error: The number of priorities must match the number of processes.")
+                    return redirect(url_for('index'))
+                data['priorities'] = priorities
+            else:
+                flash("Error: Priority data is missing for the Priority Scheduler.")
+                return redirect(url_for('index'))
+
         with open('process_data.json', 'w') as f:
             json.dump(data, f)
 
-        # Run the appropriate scheduling algorithm script
         try:
             if algorithm == 'FCFS':
-                subprocess.run(['python', 'fcfs.py'], check=True)
+                subprocess.run(['python', 'fcfs_visualizer.py'], check=True)
             elif algorithm == 'SJF':
                 subprocess.run(['python', 'sjf_visualizer.py'], check=True)
-            elif algorithm == 'Round Robin':
+            elif algorithm == 'RR':
                 subprocess.run(['python', 'rr_visualizer.py'], check=True)
+            elif algorithm == 'PS':
+                subprocess.run(['python', 'p_visualizer.py'], check=True)
+            else:
+                return redirect(url_for('index'))
 
-            # Load output data
             with open('output_data.json', 'r') as f:
                 output_data = json.load(f)
 
-            # Process output data to calculate results for the front end
             job_details = []
             total_turnaround_time = 0
             total_waiting_time = 0
@@ -66,7 +66,7 @@ def index():
 
                 gantt_entry = next((entry for entry in output_data['gantt_chart'] if entry[0] == job), None)
                 if gantt_entry:
-                    _, start_time, duration = gantt_entry
+                    _, start_time, duration = gantt_entry  
                     finish_time = start_time + duration
 
                     turnaround_time = output_data['turnaround_times'][job]
@@ -75,8 +75,9 @@ def index():
                     total_turnaround_time += turnaround_time
                     total_waiting_time += waiting_time
 
-                    job_details.append((job, arrival_time, burst_time, finish_time, turnaround_time, waiting_time))
+                job_details.append((job, arrival_time, burst_time, finish_time, turnaround_time, waiting_time))
 
+            job_details.sort(key=lambda x: x[0])
             avg_turnaround_time = total_turnaround_time / num_jobs if num_jobs else 0
             avg_waiting_time = total_waiting_time / num_jobs if num_jobs else 0
 

@@ -2,21 +2,33 @@ import pygame
 import time
 import json
 
-# Read process data from JSON file
-with open('process_data.json', 'r') as f:
-    data = json.load(f)
+# Read process data from JSON file with validation
+try:
+    with open('process_data.json', 'r') as f:
+        data = json.load(f)
 
-processes = data['processes']
-burst_times = data['burst_times']
-arrival_times = data['arrival_times']
-algorithm = data['algorithm']
+    # Ensure all data fields are present and valid
+    processes = [p for p in data['processes'] if p.strip()]
+    burst_times = [int(bt) for bt in data['burst_times'] if str(bt).strip().isdigit()]
+    arrival_times = [int(at) for at in data['arrival_times'] if str(at).strip().isdigit()]
+    priorities = data.get('priorities', [1] * len(processes))  # Default priorities if not present
+
+    if not processes or not burst_times or not arrival_times:
+        raise ValueError("Error: Processes, burst times, or arrival times contain invalid or missing values.")
+    if len(processes) != len(burst_times) or len(processes) != len(arrival_times):
+        raise ValueError("Error: The number of processes, burst times, and arrival times must match.")
+
+except (json.JSONDecodeError, ValueError) as e:
+    print(f"Error reading or validating process data: {e}")
+    pygame.quit()
+    exit()
 
 pygame.init()
 
 # Set up display
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Shortest Job First (Non-Preemptive) Visualization")
+pygame.display.set_caption("Priority Non-preemptive Scheduling Visualization")
 
 # Define colors
 background_color = (255, 255, 255)
@@ -60,25 +72,25 @@ def draw(processing, queue, time_elapsed, process_times):
         pygame.draw.line(screen, text_color, (x_pos, chart_start_y + chart_height), (x_pos, chart_start_y + chart_height + 20), 2)
         num_text = font.render(str(i), True, text_color)
         screen.blit(num_text, (x_pos - 10, chart_start_y + chart_height + 25))
-    
-    pygame.draw.rect(screen, active_color if processing else background_color, (240, 280, 210, 100))
-    pygame.draw.rect(screen, border_color, (240, 280, 210, 100), 2)
+
     # Draw processor label
     processor_label = font.render("Processor", True, text_color)
     screen.blit(processor_label, (270, 250))
+    
+    pygame.draw.rect(screen, active_color if processing else background_color, (240, 280, 210, 100))
+    pygame.draw.rect(screen, border_color, (240, 280, 210, 100), 2)
 
     # Draw processor box
     if processing:
-        # pygame.draw.rect(screen, active_color, (240, 280, 210, 100))
         text = font.render(f'Processing: {processing}', True, text_color)
         screen.blit(text, (270, 300))
-        
+
+        # Display remaining burst time
         process_index = processes.index(processing)
         remaining_time = remaining_burst_times[process_index]
-        info_text = font.render(f'Burst Time: {remaining_time}', True, text_color)
-        screen.blit(info_text, (270, 330))
+        time_text = font.render(f'Burst Time: {remaining_time}', True, text_color)
+        screen.blit(time_text, (270, 330))
     else:
-        pygame.draw.rect(screen, completed_color, (240, 280, 210, 100))
         text = font.render('CPU Idle', True, text_color)
         screen.blit(text, (270, 300))
 
@@ -97,13 +109,7 @@ def draw(processing, queue, time_elapsed, process_times):
 
     pygame.display.flip()
 
-# Helper function to get the shortest job in the queue
-def get_shortest_job(queue):
-    if not queue:
-        return None
-    return min(queue, key=lambda x: burst_times[processes.index(x)])
-
-# Simulation loop
+# Main simulation loop
 running = True
 clock = pygame.time.Clock()
 time_elapsed = 0
@@ -123,10 +129,20 @@ while running:
             queue.append(processes[i])
             processed_arrivals.add(processes[i])
 
-    # Process handling when CPU is idle and ready queue is not empty
+    # Stop the simulation once all processes have been completed and time keeps incrementing
+    if len(process_times) == len(processes) and not processing and not queue:
+        draw(None, queue, time_elapsed, process_times)
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            draw(None, queue, time_elapsed, process_times)
+            clock.tick(1)
+        break  # Exit the loop when the user quits
+
+    # Process handling when CPU becomes active
     if processing is None and queue:
-        processing = get_shortest_job(queue)
-        queue.remove(processing)
+        processing = queue.pop(0)
         process_index = processes.index(processing)
         process_times[processing] = [time_elapsed, burst_times[process_index]]
 
@@ -144,18 +160,12 @@ while running:
             processing = None
 
     else:
-        if not queue and len(process_times) < len(processes):
+        if not queue:
             time.sleep(1)  # Simulate idle time
             time_elapsed += 1
 
+    draw(processing, queue, time_elapsed, process_times)
     clock.tick(1)
-
-# Wait for user to close the simulation after processing completes
-while running:
-    draw(None, queue, time_elapsed, process_times)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
 
 # Calculate turnaround and waiting times
 turnaround_times = {}

@@ -1,1 +1,1 @@
-{"processes": ["1", "2", "3"], "burst_times": [3, 4, 1], "arrival_times": [2, 0, 1], "algorithm": "Round Robin", "time_quantum": 3}
+{"processes": ["1", "2", "3", "4", "5"], "burst_times": [1, 4, 2, 6, 3], "arrival_times": [1, 2, 3, 4, 5], "algorithm": "SJF"}
